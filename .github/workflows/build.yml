@@ -11,7 +11,7 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Configurar Java
         uses: actions/setup-java@v4
@@ -27,15 +27,11 @@ jobs:
           npm install @capacitor/android
           npx cap add android
 
-      - name: Configurar Permisos de Microfono e Icono
+      - name: Configurar Permisos de Microfono
         run: |
-          # Inyectar permisos del micrófono en el AndroidManifest nativo
           MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
-          sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />' $MANIFEST_PATH
-          
-          # Vincular icono si existe en la carpeta www
-          if [ -f "www/icon.png" ]; then
-            sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' capacitor.config.json || true
+          if [ -f "$MANIFEST_PATH" ]; then
+            sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />' $MANIFEST_PATH
           fi
 
       - name: Compilar APK Final
@@ -43,7 +39,8 @@ jobs:
           npx cap sync android
           cd android
           ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../PalabrasRapidas.apk
+          # Buscamos el archivo en cualquier subcarpeta de build para asegurar que lo encuentre
+          find . -name "*.apk" -exec cp {} ../PalabrasRapidas.apk \;
 
       - name: Guardar APK Resultante
         uses: actions/upload-artifact@v4
