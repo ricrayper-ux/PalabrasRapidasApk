@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Palabra Rápida</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #090D16;
+            color: #F1F5F9;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        .font-retro {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        @keyframes boingIn {
+            0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.15) rotate(5deg); opacity: 1; }
+            70% { transform: scale(0.9) rotate(-3deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .animate-boing {
+            animation: boingIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes letterPop {
+            0% { transform: scale(0.8) rotateY(0deg); opacity: 0.5; }
+            50% { transform: scale(1.2) rotateY(180deg); opacity: 1; }
+            100% { transform: scale(1) rotateY(360deg); opacity: 1; }
+        }
+        .animate-letter-spin {
+            animation: letterPop 0.4s ease-out;
+        }
+
+        @keyframes hourglassSpin {
+            0% { transform: rotate(0deg); }
+            80% { transform: rotate(0deg); }
+            100% { transform: rotate(180deg); }
+        }
+        .animate-hourglass {
+            animation: hourglassSpin 4s infinite ease-in-out;
+        }
+
+        @keyframes tearDrop {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            70% { opacity: 0.8; }
+            100% { transform: translateY(18px) scale(0.6); opacity: 0; }
+        }
+        .tear-left {
+            animation: tearDrop 1.2s infinite ease-in;
+        }
+        .tear-right {
+            animation: tearDrop 1.2s 0.6s infinite ease-in;
+        }
+
+        @keyframes sadBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .sad-face-anim {
+            animation: sadBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes trophyFloat {
+            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -10px) scale(1.1); }
+            40% { transform: translate(-50%, 0px) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -5px) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
+        }
+        .achievement-toast {
+            animation: trophyFloat 2.8s ease-in-out forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        .compact-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-3 md:p-5 relative overflow-x-hidden">
+
+    <div class="w-full max-w-md bg-slate-900/90 rounded-3xl p-4 md:p-5 shadow-2xl border border-slate-800 flex flex-col gap-3 relative z-10">
+
+        <!-- Header -->
+        <header class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/80">
+            <div class="flex items-center gap-2">
+                <div id="boing-box" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-purple-500/20 animate-boing cursor-pointer">
+                    <span id="boing-letter" class="font-bold">P</span>
+                </div>
+                <div>
+                    <h1 class="text-base font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                        Palabra Rápida
+                    </h1>
+                    <span id="current-cat-badge" class="text-[10px] text-purple-300/80 font-medium block -mt-0.5">
+                        Categoría: <strong class="text-purple-300">General</strong>
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="open-cat-btn" onclick="openCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-purple-600 border border-slate-700/80 text-purple-300 hover:text-white flex items-center justify-center transition-all shadow-md active:scale-95" title="Seleccionar Categoría">
+                    <i class="fa-solid font-bold fa-plus text-xs"></i>
+                </button>
+
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                    <button id="mode-1p" onclick="setMode('1p')" class="px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white transition-all shadow">1P</button>
+                    <button id="mode-2p" onclick="setMode('2p')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">2P</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Puntuaciones -->
+        <div id="players-card" class="compact-panel p-2.5 rounded-2xl flex items-center justify-between gap-2">
+            <div id="p1-box" class="flex-1 bg-purple-950/40 border-2 border-purple-500/80 rounded-xl p-2 transition-all">
+                <div class="flex items-center justify-between text-xs mb-0.5">
+                    <input type="text" id="p1-name" value="Jugador 1" class="bg-transparent font-bold text-slate-200 outline-none w-20 truncate focus:border-b focus:border-purple-400" />
+                    <i class="fa-solid fa-user text-purple-400 text-[10px]"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold">Puntos</span>
+                    <span id="p1-score" class="text-base font-extrabold text-purple-300">0</span>
+                </div>
+            </div>
+
+            <div id="p2-box" class="flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50 hidden">
+                <div class="flex items-center justify-between text-xs mb-0.5">
+                    <input type="text" id="p2-name" value="Jugador 2" class="bg-transparent font-bold text-slate-200 outline-none w-20 truncate focus:border-b focus:border-cyan-400" />
+                    <i class="fa-solid fa-user text-cyan-400 text-[10px]"></i>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold">Puntos</span>
+                    <span id="p2-score" class="text-base font-extrabold text-cyan-300">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporizador -->
+        <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/90 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between text-xs font-semibold px-1">
+                <span class="flex items-center gap-1.5 text-amber-400 text-[11px]">
+                    <span class="inline-block animate-hourglass text-xs">⏳</span> TIEMPO RESTANTE
+                </span>
+                <span id="timer-text" class="font-retro text-xs text-amber-300">20s</span>
+            </div>
+            <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                <div id="timer-bar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 rounded-full transition-all duration-300 w-full"></div>
+            </div>
+        </div>
+
+        <!-- Tablero Central -->
+        <div class="compact-panel p-3 rounded-2xl flex flex-col items-center gap-3 relative">
+            <div class="flex justify-center gap-2 w-full">
+                <span id="vowel-A" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">A</span>
+                <span id="vowel-E" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">E</span>
+                <span id="vowel-I" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">I</span>
+                <span id="vowel-O" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">O</span>
+                <span id="vowel-U" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">U</span>
+            </div>
+
+            <div class="flex items-center justify-center gap-4 my-1 w-full">
+                <button id="btn-pause" onclick="togglePauseGame()" class="w-10 h-10 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 flex items-center justify-center transition-all active:scale-95 shadow" title="Pausar / Reanudar">
+                    <i class="fa-solid fa-pause text-sm"></i>
+                </button>
+
+                <div id="trompo-btn" onclick="startSpinning()" class="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-amber-500 flex flex-col items-center justify-center text-white shadow-xl shadow-purple-900/40 cursor-pointer active:scale-95 transition-transform border-2 border-white/20 relative group">
+                    <span id="consonant-display" class="text-4xl font-extrabold tracking-widest drop-shadow-md">?</span>
+                    <span id="trompo-label" class="text-[9px] uppercase tracking-wider font-extrabold text-purple-100 mt-1 opacity-90">Girar</span>
+                </div>
+
+                <button id="btn-stop" onclick="stopGameManual()" class="w-10 h-10 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/50 text-rose-300 flex items-center justify-center transition-all active:scale-95 shadow" title="Detener Juego">
+                    <i class="fa-solid fa-stop text-sm"></i>
+                </button>
+            </div>
+
+            <p id="rule-instruction" class="text-xs text-center text-slate-400 font-medium px-2">
+                Presiona el botón central para girar la consonante.
+            </p>
+        </div>
+
+        <!-- Entrada de Voz y Texto -->
+        <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+                <button id="mic-btn" onclick="toggleSpeech()" class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg shadow-lg shadow-rose-600/30 hover:bg-rose-500 active:scale-95 transition-all relative shrink-0">
+                    <i id="mic-icon" class="fa-solid fa-microphone"></i>
+                </button>
+
+                <div class="relative flex-1">
+                    <input type="text" id="word-input" placeholder="Escribe o habla..." class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-purple-500 transition-all font-medium pr-10" />
+                    <button onclick="handleWordSubmit()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center hover:bg-purple-500 active:scale-95 transition-all">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
+                <span id="clue-preview-text" class="text-[11px] text-amber-300/90 font-medium italic truncate flex-1 px-1">
+                    <i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Presiona "Ver Pista" para obtener una ayuda.
+                </span>
+                <button onclick="triggerPistaModal()" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 active:scale-95">
+                    <i class="fa-solid fa-key text-[10px]"></i> Ver Pista
+                </button>
+            </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="compact-panel p-3 rounded-2xl flex flex-col gap-2">
+            <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-ul text-purple-400"></i> Historial de Palabras
+                </span>
+                <span class="text-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full font-bold">
+                    🏆 Récord: <strong id="record-word">---</strong>
+                </span>
+            </div>
+            
+            <div id="words-list" class="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto p-1">
+                <span class="text-slate-600 text-[11px] italic">Las palabras dichas aparecerán aquí...</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL 1: Categorías -->
+    <div id="cat-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="font-extrabold text-base text-purple-300 flex items-center gap-2">
+                    <i class="fa-solid fa-shapes"></i> Selecciona Categoría
+                </h3>
+                <button onclick="closeCategoryModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
+                <button onclick="selectCategory('Todas (General)')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    🌐 General
+                </button>
+                <button onclick="selectCategory('Animales')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    🐶 Animales
+                </button>
+                <button onclick="selectCategory('Frutas y Verduras')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    🍎 Frutas / Verduras
+                </button>
+                <button onclick="selectCategory('Poblaciones y Países')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    🗺️ Ciudades / Países
+                </button>
+                <button onclick="selectCategory('Profesiones')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    👨‍⚕️ Profesiones
+                </button>
+                <button onclick="selectCategory('Nombres')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    👤 Nombres
+                </button>
+                <button onclick="selectCategory('Deportes')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
+                    ⚽ Deportes
+                </button>
+            </div>
+
+            <button onclick="closeCategoryModal()" class="w-full py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs shadow-lg shadow-purple-600/30">
+                Confirmar
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Pista -->
+    <div id="pista-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-slate-900 border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 text-xl shadow-lg">
+                💡
+            </div>
+
+            <h3 class="font-extrabold text-base text-amber-300">Pista de la Palabra</h3>
+
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 w-full">
+                <p id="pista-modal-text" class="text-xs text-slate-200 font-medium leading-relaxed">
+                    Cargando pista temática...
+                </p>
+            </div>
+
+            <button onclick="closePistaModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
+                Okay
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Game Over -->
+    <div id="gameover-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="w-full max-w-sm bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
+            <div class="relative sad-face-anim my-1">
+                <svg class="w-24 h-24" viewBox="0 0 100 100" fill="none">
+                    <circle cx="50" cy="50" r="45" fill="#FBBF24"/>
+                    <ellipse cx="33" cy="42" rx="4" ry="6" fill="#1E293B"/>
+                    <ellipse cx="67" cy="42" rx="4" ry="6" fill="#1E293B"/>
+                    <path d="M 24 33 Q 33 37 40 33" stroke="#1E293B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                    <path d="M 76 33 Q 67 37 60 33" stroke="#1E293B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                    <path d="M 32 70 Q 50 54 68 70" stroke="#1E293B" stroke-width="4" stroke-linecap="round" fill="none"/>
+                    <ellipse class="tear-left" cx="30" cy="54" rx="3.5" ry="5" fill="#38BDF8"/>
+                    <ellipse class="tear-right" cx="70" cy="54" rx="3.5" ry="5" fill="#38BDF8"/>
+                </svg>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-extrabold text-rose-400">¡Tiempo Agotado!</h2>
+                <p id="gameover-desc" class="text-xs text-slate-300 font-medium mt-1">
+                    No lograste decir una palabra a tiempo.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-2 w-full mt-2">
+                <button onclick="retryGame()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Intentar de nuevo
+                </button>
+                <button onclick="abandonGame()" class="w-full py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all">
+                    Abandonar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONSONANTS = ['B','C','D','F','G','H','J','K','L','M','N','P','Q','R','S','T','V','W','X','Y','Z'];
+        const VOWELS = ['A','E','I','O','U'];
+        const TIMER_MAX = 20;
+
+        let currentCategory = 'Todas (General)';
+        let currentMode = '1p';
+        let activePlayer = 1;
+        let p1Score = 0;
+        let p2Score = 0;
+
+        let p1UnlockedMilestones = new Set();
+        let p2UnlockedMilestones = new Set();
+        const MILESTONES = [20, 50, 100, 150, 200, 300];
+
+        let currentConsonant = '';
+        let currentVowelsIndex = 0;
+        let timerValue = TIMER_MAX;
+        let timerInterval = null;
+        let gameActive = false;
+        let isPaused = false;
+
+        let longestWord = '';
+        let usedWords = new Set();
+
+        let recognition = null;
+        let isListening = false;
+
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRec();
+            recognition.lang = 'es-ES';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.trim();
+                if (transcript) {
+                    document.getElementById('word-input').value = transcript;
+                    submitWord(transcript);
+                }
+            };
+
+            recognition.onerror = (e) => {
+                console.log('Speech error:', e.error);
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                updateMicBtnUI();
+                if (gameActive && !isPaused) {
+                    tryStartListening();
+                }
+            };
+        }
+
+        const lettersList = ['P','A','L','A','B','R','A'];
+        let letterIdx = 0;
+        setInterval(() => {
+            const el = document.getElementById('boing-letter');
+            letterIdx = (letterIdx + 1) % lettersList.length;
+            el.textContent = lettersList[letterIdx];
+            el.classList.remove('animate-letter-spin');
+            void el.offsetWidth;
+            el.classList.add('animate-letter-spin');
+        }, 1800);
+
+        function setMode(mode) {
+            currentMode = mode;
+            const b1 = document.getElementById('mode-1p');
+            const b2 = document.getElementById('mode-2p');
+            const p2Box = document.getElementById('p2-box');
+
+            if (mode === '1p') {
+                b1.className = "px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white transition-all shadow";
+                b2.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
+                p2Box.classList.add('hidden');
+                activePlayer = 1;
+            } else {
+                b2.className = "px-2.5 py-1 rounded-lg font-bold bg-cyan-600 text-white transition-all shadow";
+                b1.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
+                p2Box.classList.remove('hidden');
+            }
+            updateTurnHighlight();
+        }
+
+        function openCategoryModal() {
+            document.getElementById('cat-modal').classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('cat-modal').classList.add('hidden');
+        }
+
+        function selectCategory(cat) {
+            currentCategory = cat;
+            document.getElementById('current-cat-badge').innerHTML = `Categoría: <strong class="text-purple-300">${cat}</strong>`;
+            closeCategoryModal();
+            showToast(`Categoría: ${cat}`);
+        }
+
+        function startSpinning() {
+            if (gameActive && !isPaused) return;
+
+            const display = document.getElementById('consonant-display');
+            const label = document.getElementById('trompo-label');
+            
+            let spins = 0;
+            const spinInterval = setInterval(() => {
+                display.textContent = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+                spins++;
+                if (spins > 12) {
+                    clearInterval(spinInterval);
+                    currentConsonant = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+                    display.textContent = currentConsonant;
+                    label.textContent = 'JUGANDO';
+                    
+                    currentVowelsIndex = 0;
+                    updateVowelsUI();
+                    
+                    gameActive = true;
+                    isPaused = false;
+                    resetTimer();
+                    updatePauseBtnUI();
+                    enableControls(true);
+
+                    tryStartListening();
+                }
+            }, 60);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerValue = TIMER_MAX;
+            updateTimerUI();
+
+            timerInterval = setInterval(() => {
+                if (!isPaused && gameActive) {
+                    timerValue--;
+                    updateTimerUI();
+                    if (timerValue <= 0) {
+                        clearInterval(timerInterval);
+                        triggerGameOver();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            document.getElementById('timer-text').textContent = `${timerValue}s`;
+            const pct = (timerValue / TIMER_MAX) * 100;
+            document.getElementById('timer-bar').style.width = `${pct}%`;
+        }
+
+        function updateVowelsUI() {
+            VOWELS.forEach((v, idx) => {
+                const el = document.getElementById(`vowel-${v}`);
+                if (idx < currentVowelsIndex) {
+                    el.className = "w-8 h-8 rounded-lg bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 font-extrabold flex items-center justify-center text-sm transition-all";
+                } else if (idx === currentVowelsIndex) {
+                    el.className = "w-8 h-8 rounded-lg bg-pink-600 text-white font-extrabold flex items-center justify-center text-sm shadow-md shadow-pink-600/40 animate-pulse border border-white/20 transition-all";
+                } else {
+                    el.className = "w-8 h-8 rounded-lg bg-slate-800 text-slate-500 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all";
+                }
+            });
+
+            const currentVowel = VOWELS[currentVowelsIndex];
+            if (currentConsonant) {
+                document.getElementById('rule-instruction').innerHTML = 
+                    `Consonante <strong class="text-purple-400 text-sm">${currentConsonant}</strong> + Vocal <strong class="text-pink-400 text-sm">${currentVowel}</strong> (${currentCategory})`;
+            }
+        }
+
+        function matchesConsonantVowelPair(word, c, v) {
+            word = word.toUpperCase();
+            c = c.toUpperCase();
+            v = v.toUpperCase();
+
+            if (!word.includes(c) || !word.includes(v)) return false;
+
+            const pairIndex = word.indexOf(c);
+            if (pairIndex !== -1 && pairIndex + 1 < word.length) {
+                const nextChar = word[pairIndex + 1];
+                if (['A','E','I','O','U'].includes(nextChar) && nextChar !== v) {
+                    return false; 
+                }
+            }
+            return true;
+        }
+
+        function handleWordSubmit() {
+            const input = document.getElementById('word-input');
+            const val = input.value.trim();
+            if (val) {
+                submitWord(val);
+                input.value = '';
+            }
+        }
+
+        async function submitWord(rawWord) {
+            if (!gameActive || isPaused) return;
+
+            const cleanWord = rawWord.toUpperCase().trim();
+            const currentVowel = VOWELS[currentVowelsIndex];
+
+            if (!cleanWord || cleanWord.includes(' ')) {
+                showToast('❌ Ingresa una sola palabra válida', false);
+                tryStartListening();
+                return;
+            }
+
+            if (!matchesConsonantVowelPair(cleanWord, currentConsonant, currentVowel)) {
+                showToast(`❌ Debe incluir ${currentConsonant} con la vocal ${currentVowel}`, false);
+                tryStartListening();
+                return;
+            }
+
+            if (usedWords.has(cleanWord)) {
+                showToast('❌ Palabra ya utilizada', false);
+                tryStartListening();
+                return;
+            }
+
+            showToast('Validando...', true);
+            
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const validationPrompt = `Valida de forma estricta si la palabra "${cleanWord}" pertenece legítimamente a la categoría "${currentCategory}". 
+                Responde ÚNICAMENTE con un objeto JSON estricto:
+                {"valid": true} o {"valid": false, "reason": "explicación breve"}.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: validationPrompt }] }],
+                    generationConfig: { responseMimeType: "application/json" }
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const textResp = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (textResp) {
+                    const parsed = JSON.parse(textResp);
+                    if (!parsed.valid) {
+                        showToast(`❌ ${parsed.reason || 'No pertenece a la categoría'}`, false);
+                        tryStartListening();
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error("Validation error:", err);
+            }
+
+            usedWords.add(cleanWord);
+            addWordToHistory(cleanWord);
+
+            const points = cleanWord.length;
+            let currentTotalScore = 0;
+            let activeMilestones = null;
+            let playerName = '';
+
+            if (activePlayer === 1) {
+                p1Score += points;
+                document.getElementById('p1-score').textContent = p1Score;
+                currentTotalScore = p1Score;
+                activeMilestones = p1UnlockedMilestones;
+                playerName = document.getElementById('p1-name').value || 'Jugador 1';
+            } else {
+                p2Score += points;
+                document.getElementById('p2-score').textContent = p2Score;
+                currentTotalScore = p2Score;
+                activeMilestones = p2UnlockedMilestones;
+                playerName = document.getElementById('p2-name').value || 'Jugador 2';
+            }
+
+            checkScoreAchievements(currentTotalScore, activeMilestones, playerName);
+
+            if (cleanWord.length > longestWord.length) {
+                longestWord = cleanWord;
+                document.getElementById('record-word').textContent = `${longestWord} (${longestWord.length})`;
+            }
+
+            showToast(`¡Correcto! +${points} pts`, true);
+
+            currentVowelsIndex++;
+            if (currentVowelsIndex >= VOWELS.length) {
+                currentVowelsIndex = 0;
+                if (currentMode === '2p') {
+                    activePlayer = activePlayer === 1 ? 2 : 1;
+                    updateTurnHighlight();
+                }
+                showToast('🎉 ¡Rueda completada! Nueva consonante', true);
+                startSpinning();
+            } else {
+                updateVowelsUI();
+                resetTimer();
+                tryStartListening();
+            }
+        }
+
+        function checkScoreAchievements(score, unlockedSet, player) {
+            for (let milestone of MILESTONES) {
+                if (score >= milestone && !unlockedSet.has(milestone)) {
+                    unlockedSet.add(milestone);
+                    triggerTrophyAchievement(player, milestone);
+                    break;
+                }
+            }
+        }
+
+        function triggerTrophyAchievement(player, points) {
+            const toast = document.createElement('div');
+            toast.className = "fixed top-1/4 left-1/2 achievement-toast bg-slate-900/95 border border-amber-400/60 px-4 py-2.5 rounded-2xl shadow-2xl shadow-amber-500/20 flex items-center gap-3 z-50 pointer-events-none";
+            toast.innerHTML = `
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-lg shrink-0">🏆</div>
+                <div class="flex flex-col text-left">
+                    <span class="text-[10px] uppercase tracking-wider text-amber-300 font-extrabold">¡Logro Desbloqueado!</span>
+                    <span class="text-xs font-bold text-white">${player} alcanzó los <strong class="text-amber-400">${points} Puntos</strong></span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 2800);
+        }
+
+        function addWordToHistory(word) {
+            const container = document.getElementById('words-list');
+            if (usedWords.size === 1) {
+                container.innerHTML = '';
+            }
+            const tag = document.createElement('span');
+            tag.className = "bg-purple-900/40 border border-purple-500/40 text-purple-200 text-xs px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 animate-bounce";
+            tag.innerHTML = `${word} <small class="text-purple-400 text-[9px]">(${word.length})</small>`;
+            container.prepend(tag);
+        }
+
+        async function triggerPistaModal() {
+            if (!gameActive) {
+                showToast('Gira la consonante primero.');
+                return;
+            }
+
+            isPaused = true;
+            stopListening();
+
+            const c = currentConsonant;
+            const v = VOWELS[currentVowelsIndex];
+            const cat = currentCategory;
+
+            const modalText = document.getElementById('pista-modal-text');
+            modalText.textContent = `Consultando pista temática para ${c} + ${v} (${cat})...`;
+
+            document.getElementById('pista-modal').classList.remove('hidden');
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                
+                const prompt = `Proporciona una pista precisa y descriptiva para una palabra de la categoría "${cat}" que contenga obligatoriamente la consonante "${c}" y la vocal "${v}". Máximo 2 oraciones breves en español.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    tools: [{ "google_search": {} }]
+                };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    modalText.textContent = candidate.content.parts[0].text;
+                } else {
+                    modalText.textContent = `Busca un elemento de la categoría ${cat} que combine la letra ${c} con la vocal ${v}.`;
+                }
+            } catch (err) {
+                modalText.textContent = `Busca un elemento de la categoría ${cat} que combine la letra ${c} con la vocal ${v}.`;
+            }
+        }
+
+        function closePistaModal() {
+            document.getElementById('pista-modal').classList.add('hidden');
+            if (gameActive) {
+                isPaused = false;
+                tryStartListening();
+            }
+        }
+
+        function togglePauseGame() {
+            if (!gameActive) return;
+            isPaused = !isPaused;
+            updatePauseBtnUI();
+            if (isPaused) {
+                stopListening();
+                showToast('Juego Pausado', false);
+            } else {
+                tryStartListening();
+                showToast('Juego Reanudado', true);
+            }
+        }
+
+        function updatePauseBtnUI() {
+            const btn = document.getElementById('btn-pause');
+            if (isPaused) {
+                btn.innerHTML = '<i class="fa-solid fa-play text-sm"></i>';
+                btn.className = "w-10 h-10 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 flex items-center justify-center transition-all active:scale-95 shadow";
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-pause text-sm"></i>';
+                btn.className = "w-10 h-10 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 flex items-center justify-center transition-all active:scale-95 shadow";
+            }
+        }
+
+        function stopGameManual() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            stopListening();
+            triggerGameOver();
+        }
+
+        function triggerGameOver() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            stopListening();
+            document.getElementById('gameover-desc').textContent = `Puntuación final: Jugador 1 (${p1Score} pts)${currentMode === '2p' ? ` | Jugador 2 (${p2Score} pts)` : ''}`;
+            document.getElementById('gameover-modal').classList.remove('hidden');
+        }
+
+        function retryGame() {
+            document.getElementById('gameover-modal').classList.add('hidden');
+            p1Score = 0;
+            p2Score = 0;
+            document.getElementById('p1-score').textContent = '0';
+            document.getElementById('p2-score').textContent = '0';
+            p1UnlockedMilestones.clear();
+            p2UnlockedMilestones.clear();
+            usedWords.clear();
+            document.getElementById('words-list').innerHTML = '<span class="text-slate-600 text-[11px] italic">Las palabras dichas aparecerán aquí...</span>';
+            document.getElementById('record-word').textContent = '---';
+            startSpinning();
+        }
+
+        function abandonGame() {
+            document.getElementById('gameover-modal').classList.add('hidden');
+            gameActive = false;
+            currentConsonant = '';
+            document.getElementById('consonant-display').textContent = '?';
+            document.getElementById('trompo-label').textContent = 'Girar';
+            document.getElementById('rule-instruction').textContent = 'Presiona el botón central para girar la consonante.';
+        }
+
+        function toggleSpeech() {
+            if (!recognition) {
+                showToast('Reconocimiento de voz no soportado.');
+                return;
+            }
+            if (isListening) {
+                stopListening();
+            } else {
+                tryStartListening();
+            }
+        }
+
+        function tryStartListening() {
+            if (!recognition || isListening || !gameActive || isPaused) return;
+            try {
+                isListening = true;
+                recognition.start();
+                updateMicBtnUI();
+            } catch (e) {
+                isListening = false;
+                updateMicBtnUI();
+            }
+        }
+
+        function stopListening() {
+            if (!recognition || !isListening) return;
+            try {
+                recognition.stop();
+            } catch (e) {}
+            isListening = false;
+            updateMicBtnUI();
+        }
+
+        function updateMicBtnUI() {
+            const btn = document.getElementById('mic-btn');
+            const icon = document.getElementById('mic-icon');
+            if (isListening) {
+                btn.className = "w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 active:scale-95 transition-all relative shrink-0 animate-pulse";
+                icon.className = "fa-solid fa-microphone";
+            } else {
+                btn.className = "w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg shadow-lg shadow-rose-600/30 hover:bg-rose-500 active:scale-95 transition-all relative shrink-0";
+                icon.className = "fa-solid fa-microphone-slash";
+            }
+        }
+
+        function updateTurnHighlight() {
+            const p1Box = document.getElementById('p1-box');
+            const p2Box = document.getElementById('p2-box');
+            if (activePlayer === 1) {
+                p1Box.className = "flex-1 bg-purple-950/40 border-2 border-purple-500/80 rounded-xl p-2 transition-all";
+                p2Box.className = "flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50";
+            } else {
+                p2Box.className = "flex-1 bg-cyan-950/40 border-2 border-cyan-500/80 rounded-xl p-2 transition-all";
+                p1Box.className = "flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50";
+            }
+        }
+
+        function enableControls(enable) {
+            document.getElementById('word-input').disabled = !enable;
+        }
+
+        function showToast(msg, isSuccess = false) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-xs font-bold text-white z-50 shadow-2xl transition-all duration-300 border ${
+                isSuccess 
+                    ? 'bg-emerald-600/90 border-emerald-400 shadow-emerald-600/30' 
+                    : 'bg-rose-600/90 border-rose-400 shadow-rose-600/30'
+            }`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        document.getElementById('word-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleWordSubmit();
+        });
+    </script>
+</body>
+</html>
