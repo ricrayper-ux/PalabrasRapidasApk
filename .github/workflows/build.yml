@@ -22,9 +22,27 @@ jobs:
       - name: Instalar Cordova y compilar
         run: |
           npm install -g cordova
-          cordova create mi-app com.ejemplo.miapp "Palabras Rapidas"
+          cordova create mi-app com.ricrayper.palabrasrapidas "Palabras Rapidas"
           rm -rf mi-app/www/*
           cp index.html mi-app/www/
+          
+          if [ -f "icon.png" ]; then
+            cp icon.png mi-app/www/icon.png
+            sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' mi-app/config.xml
+          fi
+          
+          # --- NUEVO: Configuración del Micrófono ---
+          # Añade las líneas de permisos directamente en el archivo de configuración de Cordova
+          sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">\n        <uses-permission android:name="android.permission.RECORD_AUDIO" />\n        <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    </config-file>' mi-app/config.xml
+          
+          cd mi-app
+          cordova platform add android
+          
+          # Instala el plugin oficial para gestionar los permisos desde la app
+          cordova plugin add cordova-plugin-android-permissions
+          cd ..
+          # ------------------------------------------
+
           cd mi-app
           cordova platform add android
           cordova build android
@@ -32,5 +50,5 @@ jobs:
       - name: Guardar APK resultante
         uses: actions/upload-artifact@v4
         with:
-          name: App-Instalable-APK
+          name: Palabras-Rapidas-APK
           path: mi-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
