@@ -4,641 +4,1096 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Palabra Rápida</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-    
+    <!-- Nuevas Tipografías: Outfit (Textos limpios) y Fredoka (Títulos/Números redondeados y amigables) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Iconos Material Symbols Rounded -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,1,0" />
     <style>
+        :root {
+            --bg-color: #0F172A;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --primary: #8B5CF6;
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --secondary: #EC4899;
+            --accent: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #090D16;
-            color: #F1F5F9;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1E1B4B 0%, transparent 70%);
+        }
+        
+        .material-symbols-rounded {
+            vertical-align: middle;
+            font-size: 1.2em;
         }
 
-        .font-retro {
-            font-family: 'Press Start 2P', monospace;
+        /* Título y Header */
+        .header-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        /* Efecto Gota Líquida Fluida (Morphing + Partículas) */
+        .logo-box {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        
+        .logo-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            z-index: -1;
+            box-shadow: 0 4px 12px var(--primary-glow);
         }
 
-        @keyframes boingIn {
-            0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
-            50% { transform: scale(1.15) rotate(5deg); opacity: 1; }
-            70% { transform: scale(0.9) rotate(-3deg); }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        .animate-boing {
-            animation: boingIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes letterPop {
-            0% { transform: scale(0.8) rotateY(0deg); opacity: 0.5; }
-            50% { transform: scale(1.2) rotateY(180deg); opacity: 1; }
-            100% { transform: scale(1) rotateY(360deg); opacity: 1; }
-        }
-        .animate-letter-spin {
-            animation: letterPop 0.4s ease-out;
+        /* Partículas de agua que salpican al unirse la gota */
+        .logo-box::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: transparent;
+            z-index: -2;
         }
 
-        @keyframes hourglassSpin {
-            0% { transform: rotate(0deg); }
-            80% { transform: rotate(0deg); }
-            100% { transform: rotate(180deg); }
+        .logo-box.animating {
+            animation: text-appear 1.2s forwards;
         }
-        .animate-hourglass {
-            animation: hourglassSpin 4s infinite ease-in-out;
-        }
-
-        @keyframes tearDrop {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            70% { opacity: 0.8; }
-            100% { transform: translateY(18px) scale(0.6); opacity: 0; }
-        }
-        .tear-left {
-            animation: tearDrop 1.2s infinite ease-in;
-        }
-        .tear-right {
-            animation: tearDrop 1.2s 0.6s infinite ease-in;
+        
+        .logo-box.animating::before {
+            animation: water-drop-fluid 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        @keyframes sadBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        .sad-face-anim {
-            animation: sadBounce 2s ease-in-out infinite;
+        .logo-box.animating::after {
+            animation: water-splash 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
-        @keyframes trophyFloat {
-            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
-            20% { opacity: 1; transform: translate(-50%, -10px) scale(1.1); }
-            40% { transform: translate(-50%, 0px) scale(1); }
-            80% { opacity: 1; transform: translate(-50%, -5px) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); }
-        }
-        .achievement-toast {
-            animation: trophyFloat 2.8s ease-in-out forwards;
+        @keyframes text-appear {
+            0%, 65% { color: transparent; transform: scale(0.5); }
+            80% { color: white; transform: scale(1.1); }
+            100% { color: white; transform: scale(1); }
         }
 
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
+        /* Animación que imita el sprite sheet: gota pequeña -> se estira -> medialuna -> salpica y se cuadra */
+        @keyframes water-drop-fluid {
+            0% {
+                width: 8px; height: 8px;
+                top: -5px; left: 14px;
+                border-radius: 50% 100% 50% 50%;
+                transform: rotate(-45deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+                width: 18px; height: 8px;
+                top: 2px; left: 16px;
+                border-radius: 100% 0% 50% 50%;
+                transform: rotate(45deg);
+            }
+            35% {
+                width: 30px; height: 14px;
+                top: 10px; left: 6px;
+                border-radius: 60% 40% 70% 30% / 60% 30% 70% 40%;
+                transform: rotate(135deg);
+            }
+            55% {
+                width: 38px; height: 38px;
+                top: -1px; left: -1px;
+                border-radius: 50%;
+                transform: rotate(225deg) scale(1.1);
+            }
+            75% {
+                width: 36px; height: 36px;
+                top: 0; left: 0;
+                border-radius: 30% 70% 40% 60% / 50% 40% 60% 50%;
+                transform: rotate(300deg) scale(0.95);
+            }
+            100% {
+                width: 100%; height: 100%;
+                top: 0; left: 0;
+                border-radius: 10px;
+                transform: rotate(360deg) scale(1);
+            }
         }
 
+        /* Expulsión de gotitas (splash) */
+        @keyframes water-splash {
+            0%, 50% { box-shadow: 0 0 0 transparent; }
+            60% { box-shadow: -15px -15px 0 1px var(--primary), 20px -10px 0 0 var(--secondary), -10px 20px 0 1px var(--primary); }
+            80% { box-shadow: -25px -25px 0 -1px var(--primary), 30px -15px 0 -1px var(--secondary), -15px 30px 0 -1px var(--primary); opacity: 1; }
+            100% { box-shadow: -35px -35px 0 -3px var(--primary), 40px -20px 0 -3px var(--secondary), -20px 40px 0 -3px var(--primary); opacity: 0; }
+        }
+
+        .title-text {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #C084FC, #F472B6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 8px;
+            flex-grow: 1;
+        }
+
+        /* Botón de Categorías y Jugadores */
+        .header-actions { display: flex; gap: 6px; align-items: center; }
+
+        .btn-icon {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-icon:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
+        .btn-icon .material-symbols-rounded { font-size: 20px; }
+
+        .mode-selector {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 2px;
+        }
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .category-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: -6px;
+            margin-bottom: 8px;
+            text-align: left;
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .category-label .material-symbols-rounded { font-size: 14px; }
+
+        /* Paneles */
         .compact-panel {
-            background: rgba(15, 23, 42, 0.85);
+            background: var(--panel-bg);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
+
+        /* Jugadores */
+        .players-bar { display: flex; gap: 8px; }
+        .player-card {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        .player-card.active {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: var(--primary);
+            box-shadow: inset 0 0 8px var(--primary-glow);
+        }
+        .player-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .player-card.active .player-name { color: var(--primary); }
+        .player-name .material-symbols-rounded { font-size: 16px; }
+        .player-score { font-size: 1.2rem; font-weight: 600; font-family: 'Fredoka', sans-serif; }
+
+        /* Temporizador */
+        .timer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); }
+        .timer-header span { display: flex; align-items: center; gap: 4px; }
+        .timer-header .material-symbols-rounded { font-size: 16px; color: var(--warning); }
+        .timer-val { font-family: 'Fredoka', sans-serif; color: var(--warning); font-size: 0.9rem; font-weight: 600;}
+        .timer-bar-bg { background: rgba(0,0,0,0.3); height: 6px; border-radius: 3px; overflow: hidden; }
+        .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--warning), var(--danger));
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        /* Area de Juego */
+        .game-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+        .vowels-row {
+            display: flex;
+            gap: 6px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        .vowel {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .vowel.active {
+            color: white;
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            transform: scale(1.15);
+        }
+        .vowel.completed {
+            color: rgba(255,255,255,0.8);
+            background: var(--secondary);
+        }
+
+        .center-action { display: flex; align-items: center; gap: 15px; }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            transition: 0.2s;
+        }
+        .control-btn:active { transform: scale(0.9); }
+        #btn-pause { color: #60A5FA; }
+        #btn-pause.paused { background: var(--accent); color: white; }
+        #btn-stop { color: var(--danger); }
+
+        /* Botón Central - Animación de Explosión */
+        .spinner-box {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Capa de destello explosivo */
+        .spinner-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, #FFD700, #FF4500);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.2s;
+        }
+
+        /* Anillo de partículas de la explosión */
+        .spinner-box::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: -2;
+            pointer-events: none;
+            box-shadow: 0 0 0 0 transparent;
+        }
+
+        .spinner-box.spinning {
+            animation: box-explode 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .spinner-box.spinning::after {
+            animation: explosion-ring 0.8s ease-out forwards;
+        }
+
+        .spinner-box.spinning .consonant-display,
+        .spinner-box.spinning .spinner-status {
+            animation: text-pop 0.8s forwards;
+        }
+
+        /* Keyframes de la explosión de la caja */
+        @keyframes box-explode {
+            0% { transform: scale(1); filter: brightness(1); border-radius: 24px; }
+            /* Implosión / Chispa inicial */
+            20% { transform: scale(0.6) rotate(-10deg); filter: brightness(1.5); border-radius: 40%; }
+            /* Gran expansión explosiva */
+            45% { transform: scale(1.3) rotate(5deg); filter: brightness(1.3); border-radius: 35%; background: var(--warning); }
+            /* Retroceso elástico */
+            70% { transform: scale(0.9) rotate(-3deg); border-radius: 26px; }
+            100% { transform: scale(1) rotate(0deg); filter: brightness(1); border-radius: 24px; }
+        }
+
+        /* Keyframes del anillo de partículas saliendo disparadas */
+        @keyframes explosion-ring {
+            0% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+            40% { 
+                box-shadow: 
+                    0 -45px 0 -10px var(--warning), 
+                    45px -35px 0 -15px var(--secondary), 
+                    45px 45px 0 -10px var(--warning), 
+                    0 55px 0 -15px var(--accent), 
+                    -45px 35px 0 -10px var(--warning), 
+                    -45px -45px 0 -15px var(--secondary); 
+                opacity: 1; 
+            }
+            100% { 
+                box-shadow: 
+                    0 -90px 0 -20px transparent, 
+                    90px -70px 0 -20px transparent, 
+                    90px 90px 0 -20px transparent, 
+                    0 110px 0 -20px transparent, 
+                    -90px 70px 0 -20px transparent, 
+                    -90px -90px 0 -20px transparent; 
+                opacity: 0; 
+            }
+        }
+
+        /* Oculta y revela el texto dinámicamente con la explosión */
+        @keyframes text-pop {
+            0% { opacity: 1; transform: scale(1); }
+            15%, 55% { opacity: 0; transform: scale(0.3); }
+            75% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .consonant-display { font-family: 'Fredoka', sans-serif; font-size: 3rem; font-weight: 600; line-height: 1; z-index: 2;}
+        .spinner-status { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; opacity: 0.8; z-index: 2;}
+
+        .rule-text { font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+        .rule-text strong { color: white; }
+        .rule-cat { color: var(--warning); font-size: 0.75rem; font-weight: 600;}
+
+        /* Input y Microfono */
+        .input-area { display: flex; gap: 8px; width: 100%; }
+        .mic-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mic-btn .material-symbols-rounded { font-size: 26px; }
+        .mic-btn.listening {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        .text-input-container { flex-grow: 1; position: relative; }
+        input[type="text"] {
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 0 46px 0 14px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--primary); }
+        .send-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            width: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Pistas */
+        .hint-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(245, 158, 11, 0.05); border-radius: 14px; padding: 10px 14px; }
+        .hint-text { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;}
+        .hint-text .material-symbols-rounded { font-size: 18px; color: var(--warning); }
+        .btn-hint { background: transparent; border: 1px solid var(--warning); color: var(--warning); padding: 5px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-hint:active { background: var(--warning); color: #000; }
+
+        /* Historial */
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .history-title { font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .history-title .material-symbols-rounded { font-size: 18px; }
+        .record-badge { display: flex; align-items: center; gap: 4px; background: rgba(245, 158, 11, 0.15); color: var(--warning); padding: 4px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 800; font-family: 'Fredoka', sans-serif;}
+        .record-badge .material-symbols-rounded { font-size: 14px; }
+        
+        .words-container { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px; }
+        .word-tag {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--text-main);
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .word-tag span { color: var(--warning); font-family: 'Fredoka', sans-serif; font-size: 0.75rem; margin-left: 4px; }
+        .empty-history { font-size: 0.8rem; color: rgba(255,255,255,0.3); font-style: italic; }
+
+        /* Modales */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px;
+        }
+        .modal-box {
+            background: var(--bg-color); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 24px;
+            width: 100%; max-width: 320px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+        .modal-title { font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; }
+        .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .cat-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;
+            padding: 12px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+        }
+        .cat-btn .material-symbols-rounded { font-size: 24px; color: var(--primary); }
+        .cat-btn:hover, .cat-btn:active { background: rgba(139, 92, 246, 0.2); border-color: var(--primary); }
+
+        .btn-primary { background: linear-gradient(135deg, var(--warning), #D97706); border: none; color: #000; font-weight: 800; padding: 12px 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-top: 15px; font-size: 0.95rem; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px 15px; border-radius: 12px; width: 100%; cursor: pointer; margin-top: 8px; font-weight: 600; font-size: 0.9rem;}
+
+        /* Animaciones */
+        .icon-huge { font-size: 4rem; margin-bottom: 10px; animation: boing 1s infinite alternate; }
+        .icon-huge.sad { color: var(--danger); }
+        .icon-huge.hint { color: var(--warning); animation: none; }
+        
+        .achievement-toast {
+            position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(245, 158, 11, 0.9); color: #000; padding: 12px 24px; border-radius: 20px;
+            font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;
+            z-index: 2000; pointer-events: none; opacity: 0; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+        @keyframes trophy-float { 
+            0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 
+            20% { opacity: 1; transform: translate(-50%, -10px) scale(1.1); } 
+            40% { transform: translate(-50%, 0px) scale(1); } 
+            80% { opacity: 1; transform: translate(-50%, -5px) scale(1); } 
+            100% { opacity: 0; transform: translate(-50%, -30px) scale(0.8); } 
+        }
+
+        .toast-container { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 500; pointer-events: none; width: 90%; max-width: 350px;}
+        .toast { background: rgba(0,0,0,0.85); color: white; padding: 10px 16px; border-radius: 16px; font-size: 0.8rem; text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.1); opacity: 0; animation: fadeUp 2.5s forwards; font-weight: 600; }
+        .toast.success { border-color: var(--accent); background: rgba(16, 185, 129, 0.2); color: #A7F3D0; }
+        .toast.error { border-color: var(--danger); background: rgba(239, 68, 68, 0.2); color: #FECACA; }
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
+
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-3 md:p-5 relative overflow-x-hidden">
+<body>
 
-    <div class="w-full max-w-md bg-slate-900/90 rounded-3xl p-4 md:p-5 shadow-2xl border border-slate-800 flex flex-col gap-3 relative z-10">
-
-        <!-- Header -->
-        <header class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/80">
-            <div class="flex items-center gap-2">
-                <div id="boing-box" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center font-extrabold text-white text-lg shadow-lg shadow-purple-500/20 animate-boing cursor-pointer">
-                    <span id="boing-letter" class="font-bold">P</span>
-                </div>
-                <div>
-                    <h1 class="text-base font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                        Palabra Rápida
-                    </h1>
-                    <span id="current-cat-badge" class="text-[10px] text-purple-300/80 font-medium block -mt-0.5">
-                        Categoría: <strong class="text-purple-300">General</strong>
-                    </span>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button id="open-cat-btn" onclick="openCategoryModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-purple-600 border border-slate-700/80 text-purple-300 hover:text-white flex items-center justify-center transition-all shadow-md active:scale-95" title="Seleccionar Categoría">
-                    <i class="fa-solid font-bold fa-plus text-xs"></i>
-                </button>
-
-                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
-                    <button id="mode-1p" onclick="setMode('1p')" class="px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white transition-all shadow">1P</button>
-                    <button id="mode-2p" onclick="setMode('2p')" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">2P</button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Puntuaciones -->
-        <div id="players-card" class="compact-panel p-2.5 rounded-2xl flex items-center justify-between gap-2">
-            <div id="p1-box" class="flex-1 bg-purple-950/40 border-2 border-purple-500/80 rounded-xl p-2 transition-all">
-                <div class="flex items-center justify-between text-xs mb-0.5">
-                    <input type="text" id="p1-name" value="Jugador 1" class="bg-transparent font-bold text-slate-200 outline-none w-20 truncate focus:border-b focus:border-purple-400" />
-                    <i class="fa-solid fa-user text-purple-400 text-[10px]"></i>
-                </div>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold">Puntos</span>
-                    <span id="p1-score" class="text-base font-extrabold text-purple-300">0</span>
-                </div>
-            </div>
-
-            <div id="p2-box" class="flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50 hidden">
-                <div class="flex items-center justify-between text-xs mb-0.5">
-                    <input type="text" id="p2-name" value="Jugador 2" class="bg-transparent font-bold text-slate-200 outline-none w-20 truncate focus:border-b focus:border-cyan-400" />
-                    <i class="fa-solid fa-user text-cyan-400 text-[10px]"></i>
-                </div>
-                <div class="flex items-baseline justify-between">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold">Puntos</span>
-                    <span id="p2-score" class="text-base font-extrabold text-cyan-300">0</span>
-                </div>
+    <!-- Header -->
+    <div class="header-container">
+        <div class="logo-box animating" id="logo-icon">A</div>
+        <div class="title-text">Palabra Rápida</div>
+        <div class="header-actions">
+            <button class="btn-icon" onclick="openCategoryModal()"><span class="material-symbols-rounded">add</span></button>
+            <div class="mode-selector">
+                <button class="mode-btn active" id="btn-1p" onclick="setMode('1p')">1P</button>
+                <button class="mode-btn" id="btn-2p" onclick="setMode('2p')">2P</button>
             </div>
         </div>
+    </div>
+    
+    <div class="category-label" id="current-cat-display">
+        <span class="material-symbols-rounded">category</span>
+        Categoría: <strong>General</strong>
+    </div>
 
+    <!-- Panel de Jugadores -->
+    <div class="compact-panel players-bar">
+        <div class="player-card active" id="p1-card">
+            <div>
+                <div class="player-name"><span class="material-symbols-rounded">person</span> Jugador 1</div>
+                <div class="player-score" id="score-p1">0</div>
+            </div>
+        </div>
+        <div class="player-card" id="p2-card" style="opacity: 0.5;">
+            <div>
+                <div class="player-name"><span class="material-symbols-rounded">person</span> Jugador 2</div>
+                <div class="player-score" id="score-p2">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Principal (Juego) -->
+    <div class="compact-panel game-area">
+        
         <!-- Temporizador -->
-        <div class="bg-slate-950/80 p-2 rounded-xl border border-slate-800/90 flex flex-col gap-1.5">
-            <div class="flex items-center justify-between text-xs font-semibold px-1">
-                <span class="flex items-center gap-1.5 text-amber-400 text-[11px]">
-                    <span class="inline-block animate-hourglass text-xs">⏳</span> TIEMPO RESTANTE
-                </span>
-                <span id="timer-text" class="font-retro text-xs text-amber-300">20s</span>
+        <div style="width: 100%;">
+            <div class="timer-header">
+                <span><span class="material-symbols-rounded">hourglass_empty</span> TIEMPO RESTANTE</span>
+                <span class="timer-val" id="time-display">20s</span>
             </div>
-            <div class="w-full bg-slate-900 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                <div id="timer-bar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500 rounded-full transition-all duration-300 w-full"></div>
+            <div class="timer-bar-bg">
+                <div class="timer-bar-fill" id="time-bar"></div>
             </div>
         </div>
 
-        <!-- Tablero Central -->
-        <div class="compact-panel p-3 rounded-2xl flex flex-col items-center gap-3 relative">
-            <div class="flex justify-center gap-2 w-full">
-                <span id="vowel-A" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">A</span>
-                <span id="vowel-E" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">E</span>
-                <span id="vowel-I" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">I</span>
-                <span id="vowel-O" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">O</span>
-                <span id="vowel-U" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all">U</span>
-            </div>
-
-            <div class="flex items-center justify-center gap-4 my-1 w-full">
-                <button id="btn-pause" onclick="togglePauseGame()" class="w-10 h-10 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 flex items-center justify-center transition-all active:scale-95 shadow" title="Pausar / Reanudar">
-                    <i class="fa-solid fa-pause text-sm"></i>
-                </button>
-
-                <div id="trompo-btn" onclick="startSpinning()" class="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-amber-500 flex flex-col items-center justify-center text-white shadow-xl shadow-purple-900/40 cursor-pointer active:scale-95 transition-transform border-2 border-white/20 relative group">
-                    <span id="consonant-display" class="text-4xl font-extrabold tracking-widest drop-shadow-md">?</span>
-                    <span id="trompo-label" class="text-[9px] uppercase tracking-wider font-extrabold text-purple-100 mt-1 opacity-90">Girar</span>
-                </div>
-
-                <button id="btn-stop" onclick="stopGameManual()" class="w-10 h-10 rounded-xl bg-rose-600/30 hover:bg-rose-600/50 border border-rose-500/50 text-rose-300 flex items-center justify-center transition-all active:scale-95 shadow" title="Detener Juego">
-                    <i class="fa-solid fa-stop text-sm"></i>
-                </button>
-            </div>
-
-            <p id="rule-instruction" class="text-xs text-center text-slate-400 font-medium px-2">
-                Presiona el botón central para girar la consonante.
-            </p>
+        <!-- Vocales -->
+        <div class="vowels-row" id="vowels-container">
+            <div class="vowel active">A</div>
+            <div class="vowel">E</div>
+            <div class="vowel">I</div>
+            <div class="vowel">O</div>
+            <div class="vowel">U</div>
         </div>
 
-        <!-- Entrada de Voz y Texto -->
-        <div class="flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-                <button id="mic-btn" onclick="toggleSpeech()" class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg shadow-lg shadow-rose-600/30 hover:bg-rose-500 active:scale-95 transition-all relative shrink-0">
-                    <i id="mic-icon" class="fa-solid fa-microphone"></i>
-                </button>
-
-                <div class="relative flex-1">
-                    <input type="text" id="word-input" placeholder="Escribe o habla..." class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-purple-500 transition-all font-medium pr-10" />
-                    <button onclick="handleWordSubmit()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center hover:bg-purple-500 active:scale-95 transition-all">
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between bg-slate-950/60 p-2 rounded-xl border border-slate-800/80">
-                <span id="clue-preview-text" class="text-[11px] text-amber-300/90 font-medium italic truncate flex-1 px-1">
-                    <i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Presiona "Ver Pista" para obtener una ayuda.
-                </span>
-                <button onclick="triggerPistaModal()" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 active:scale-95">
-                    <i class="fa-solid fa-key text-[10px]"></i> Ver Pista
-                </button>
-            </div>
-        </div>
-
-        <!-- Historial -->
-        <div class="compact-panel p-3 rounded-2xl flex flex-col gap-2">
-            <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-ul text-purple-400"></i> Historial de Palabras
-                </span>
-                <span class="text-[10px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full font-bold">
-                    🏆 Récord: <strong id="record-word">---</strong>
-                </span>
+        <!-- Rueda y Controles -->
+        <div class="center-action">
+            <button class="control-btn" id="btn-pause" onclick="togglePause()"><span class="material-symbols-rounded">pause</span></button>
+            
+            <div class="spinner-box" id="spinner">
+                <div class="consonant-display" id="current-consonant">?</div>
+                <div class="spinner-status" id="spinner-status">Tocar</div>
             </div>
             
-            <div id="words-list" class="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto p-1">
-                <span class="text-slate-600 text-[11px] italic">Las palabras dichas aparecerán aquí...</span>
-            </div>
+            <button class="control-btn" id="btn-stop" onclick="stopGame()"><span class="material-symbols-rounded">stop</span></button>
         </div>
 
-    </div>
+        <div class="rule-text" id="rule-display">
+            Presiona el centro para iniciar
+        </div>
 
-    <!-- MODAL 1: Categorías -->
-    <div id="cat-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-extrabold text-base text-purple-300 flex items-center gap-2">
-                    <i class="fa-solid fa-shapes"></i> Selecciona Categoría
-                </h3>
-                <button onclick="closeCategoryModal()" class="text-slate-400 hover:text-white p-1">
-                    <i class="fa-solid fa-xmark text-base"></i>
-                </button>
+        <!-- Input de Texto y Voz -->
+        <div class="input-area">
+            <button class="mic-btn" id="btn-mic" onclick="toggleMic()"><span class="material-symbols-rounded">mic</span></button>
+            <div class="text-input-container">
+                <input type="text" id="word-input" placeholder="Escribe o habla..." autocomplete="off">
+                <button class="send-btn" onclick="submitWordManual()"><span class="material-symbols-rounded">send</span></button>
             </div>
-
-            <div class="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto pr-1">
-                <button onclick="selectCategory('Todas (General)')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    🌐 General
-                </button>
-                <button onclick="selectCategory('Animales')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    🐶 Animales
-                </button>
-                <button onclick="selectCategory('Frutas y Verduras')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    🍎 Frutas / Verduras
-                </button>
-                <button onclick="selectCategory('Poblaciones y Países')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    🗺️ Ciudades / Países
-                </button>
-                <button onclick="selectCategory('Profesiones')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    👨‍⚕️ Profesiones
-                </button>
-                <button onclick="selectCategory('Nombres')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    👤 Nombres
-                </button>
-                <button onclick="selectCategory('Deportes')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-purple-600/30 border border-slate-700/60 text-left transition-all font-semibold text-xs text-slate-200">
-                    ⚽ Deportes
-                </button>
-            </div>
-
-            <button onclick="closeCategoryModal()" class="w-full py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs shadow-lg shadow-purple-600/30">
-                Confirmar
-            </button>
         </div>
     </div>
 
-    <!-- MODAL 2: Pista -->
-    <div id="pista-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-slate-900 border border-amber-500/40 rounded-3xl p-5 shadow-2xl flex flex-col items-center text-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-amber-400 text-xl shadow-lg">
-                💡
+    <!-- Pistas -->
+    <div class="compact-panel hint-bar">
+        <div class="hint-text"><span class="material-symbols-rounded">lightbulb</span> <span>Presiona para una ayuda.</span></div>
+        <button class="btn-hint" onclick="requestHint()">Ver Pista</button>
+    </div>
+
+    <!-- Historial de Palabras -->
+    <div class="compact-panel">
+        <div class="history-header">
+            <div class="history-title"><span class="material-symbols-rounded">history</span> Historial de Palabras</div>
+            <div class="record-badge" id="record-word">
+                <span class="material-symbols-rounded">emoji_events</span> ---
             </div>
-
-            <h3 class="font-extrabold text-base text-amber-300">Pista de la Palabra</h3>
-
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 w-full">
-                <p id="pista-modal-text" class="text-xs text-slate-200 font-medium leading-relaxed">
-                    Cargando pista temática...
-                </p>
-            </div>
-
-            <button onclick="closePistaModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
-                Okay
-            </button>
+        </div>
+        <div class="words-container" id="words-history">
+            <div class="empty-history">Las palabras aparecerán aquí...</div>
         </div>
     </div>
 
-    <!-- MODAL 3: Game Over -->
-    <div id="gameover-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="w-full max-w-sm bg-slate-900 border border-rose-500/40 rounded-3xl p-6 shadow-2xl flex flex-col items-center text-center gap-4">
-            <div class="relative sad-face-anim my-1">
-                <svg class="w-24 h-24" viewBox="0 0 100 100" fill="none">
-                    <circle cx="50" cy="50" r="45" fill="#FBBF24"/>
-                    <ellipse cx="33" cy="42" rx="4" ry="6" fill="#1E293B"/>
-                    <ellipse cx="67" cy="42" rx="4" ry="6" fill="#1E293B"/>
-                    <path d="M 24 33 Q 33 37 40 33" stroke="#1E293B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-                    <path d="M 76 33 Q 67 37 60 33" stroke="#1E293B" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-                    <path d="M 32 70 Q 50 54 68 70" stroke="#1E293B" stroke-width="4" stroke-linecap="round" fill="none"/>
-                    <ellipse class="tear-left" cx="30" cy="54" rx="3.5" ry="5" fill="#38BDF8"/>
-                    <ellipse class="tear-right" cx="70" cy="54" rx="3.5" ry="5" fill="#38BDF8"/>
-                </svg>
-            </div>
+    <!-- Contenedor Toasts -->
+    <div class="toast-container" id="toast-container"></div>
 
-            <div>
-                <h2 class="text-xl font-extrabold text-rose-400">¡Tiempo Agotado!</h2>
-                <p id="gameover-desc" class="text-xs text-slate-300 font-medium mt-1">
-                    No lograste decir una palabra a tiempo.
-                </p>
-            </div>
+    <!-- Trofeo Animado (Oculto) -->
+    <div id="achievement-box" class="achievement-toast" style="display:none;">
+        <span class="material-symbols-rounded" style="color: #fff; font-size: 28px;">emoji_events</span> 
+        ¡<span id="ach-pts">50</span> PUNTOS!
+    </div>
 
-            <div class="flex flex-col gap-2 w-full mt-2">
-                <button onclick="retryGame()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-extrabold text-xs shadow-lg shadow-purple-600/30 hover:opacity-95 active:scale-95 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-rotate-right"></i> Intentar de nuevo
-                </button>
-                <button onclick="abandonGame()" class="w-full py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-700 active:scale-95 transition-all">
-                    Abandonar
-                </button>
+    <!-- Modal Categorías -->
+    <div class="modal-overlay" id="modal-category">
+        <div class="modal-box">
+            <div class="modal-title">Selecciona Categoría</div>
+            <div class="cat-grid">
+                <button class="cat-btn" onclick="selectCategory('Animales')"><span class="material-symbols-rounded">pets</span> Animales</button>
+                <button class="cat-btn" onclick="selectCategory('Frutas y Verduras')"><span class="material-symbols-rounded">nutrition</span> Frutas / Verduras</button>
+                <button class="cat-btn" onclick="selectCategory('Poblaciones y Países')"><span class="material-symbols-rounded">public</span> Ciudades / Países</button>
+                <button class="cat-btn" onclick="selectCategory('Profesiones')"><span class="material-symbols-rounded">work</span> Profesiones</button>
+                <button class="cat-btn" onclick="selectCategory('Nombres')"><span class="material-symbols-rounded">badge</span> Nombres</button>
+                <button class="cat-btn" onclick="selectCategory('Deportes')"><span class="material-symbols-rounded">sports_soccer</span> Deportes</button>
+                <button class="cat-btn" onclick="selectCategory('General')" style="grid-column: span 2; flex-direction: row;"><span class="material-symbols-rounded">category</span> Cualquier palabra (General)</button>
             </div>
+            <button class="btn-outline" onclick="closeModals()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Pista -->
+    <div class="modal-overlay" id="modal-hint">
+        <div class="modal-box">
+            <div class="material-symbols-rounded icon-huge hint">lightbulb</div>
+            <div class="modal-title" style="color: var(--warning);">Pista de la Palabra</div>
+            <p id="hint-text-display" style="font-size:0.9rem; margin-bottom:15px; color:white; line-height: 1.4;"></p>
+            <button class="btn-primary" onclick="closeHintModal()">Okay</button>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div class="modal-overlay" id="modal-gameover">
+        <div class="modal-box">
+            <div class="material-symbols-rounded icon-huge sad">sentiment_very_dissatisfied</div>
+            <div class="modal-title" style="color: var(--danger);">¡Tiempo Agotado!</div>
+            <p style="font-size:0.9rem; margin-bottom:15px; color:var(--text-muted);">No lograste decir la palabra a tiempo.</p>
+            <button class="btn-primary" onclick="retryGame()">Intentar de nuevo</button>
+            <button class="btn-outline" onclick="abandonGame()">Abandonar</button>
         </div>
     </div>
 
     <script>
-        const CONSONANTS = ['B','C','D','F','G','H','J','K','L','M','N','P','Q','R','S','T','V','W','X','Y','Z'];
-        const VOWELS = ['A','E','I','O','U'];
-        const TIMER_MAX = 20;
+        // ==========================================
+        // DICCIONARIO OFFLINE INTEGRADO
+        // ==========================================
+        const OFFLINE_DICTIONARY = {
+            "Animales": ["abeja", "aguila", "araña", "avispa", "ballena", "bisonte", "burro", "caballo", "cabra", "camello", "cangrejo", "canguro", "cebra", "cerdo", "chimpance", "ciervo", "cisne", "cocodrilo", "conejo", "delfin", "elefante", "erizo", "escarabajo", "escorpion", "foca", "gallina", "gallo", "gato", "golondrina", "gorila", "gusano", "halcon", "hormiga", "iguana", "jirafa", "leon", "leopardo", "lobo", "loro", "mariposa", "mono", "mosca", "mosquito", "murcielago", "oso", "oveja", "pajaro", "paloma", "pantera", "pato", "pavo", "pelicano", "perro", "pinguino", "pulpo", "rana", "raton", "rinoceronte", "sapo", "serpiente", "tiburon", "tigre", "toro", "tortuga", "vaca", "zorro"],
+            "Frutas y Verduras": ["aguacate", "ajo", "alcachofa", "almendra", "apio", "arandano", "berenjena", "brocoli", "calabaza", "cebolla", "cereza", "ciruela", "coco", "coliflor", "durazno", "esparrago", "espinaca", "fresa", "garbanzo", "guayaba", "higo", "kiwi", "lechuga", "limon", "mandarina", "mango", "manzana", "melon", "naranja", "nuez", "papa", "papaya", "pepino", "pera", "pimiento", "pina", "platano", "rabano", "sandia", "tomate", "uva", "zanahoria"],
+            "Poblaciones y Países": ["alemania", "argentina", "australia", "austria", "belgica", "bolivia", "brasil", "canada", "chile", "china", "colombia", "corea", "costa", "cuba", "dinamarca", "ecuador", "egipto", "espana", "estados", "francia", "grecia", "guatemala", "honduras", "india", "inglaterra", "irlanda", "italia", "japon", "mexico", "nicaragua", "noruega", "panama", "paraguay", "peru", "portugal", "puerto", "reino", "rusia", "suecia", "suiza", "uruguay", "venezuela", "madrid", "bogota", "lima", "quito", "caracas", "santiago", "buenos", "paris", "londres", "tokio", "berlin", "roma"],
+            "Profesiones": ["abogado", "actor", "actriz", "albañil", "arquitecto", "artista", "astronauta", "bombero", "cajero", "cantante", "carpintero", "carnicero", "cientifico", "cocinero", "conductor", "contador", "dentista", "doctor", "electricista", "enfermero", "escritor", "fontanero", "fotografo", "ingeniero", "jardinero", "juez", "maestro", "mecanico", "medico", "musico", "panadero", "periodista", "piloto", "pintor", "policia", "profesor", "programador", "psicologo", "veterinario"],
+            "Nombres": ["alejandro", "andrea", "antonio", "carlos", "carmen", "daniel", "david", "diego", "eduardo", "elena", "enrique", "fernando", "francisco", "gabriel", "isabel", "javier", "jesus", "jorge", "jose", "juan", "laura", "luis", "manuel", "maria", "marta", "miguel", "pablo", "patricia", "pedro", "rafael", "ramon", "raul", "roberto", "rosa", "sergio", "sofia", "teresa", "victor"],
+            "Deportes": ["ajedrez", "atletismo", "baloncesto", "balonmano", "beisbol", "boxeo", "ciclismo", "esgrima", "esqui", "futbol", "gimnasia", "golf", "hockey", "judo", "karate", "natacion", "patinaje", "remo", "rugby", "surf", "tenis", "voleibol", "waterpolo"]
+        };
 
-        let currentCategory = 'Todas (General)';
-        let currentMode = '1p';
+        // Iconos de categoría correspondientes para la UI
+        const CAT_ICONS = {
+            "Animales": "pets",
+            "Frutas y Verduras": "nutrition",
+            "Poblaciones y Países": "public",
+            "Profesiones": "work",
+            "Nombres": "badge",
+            "Deportes": "sports_soccer",
+            "General": "category"
+        };
+
+        // Estado del Juego
+        const CONSONANTS = "BCDFGHJKLMNPQRSTVWXYZ".split('');
+        const VOWELS = ['A', 'E', 'I', 'O', 'U'];
+        
+        let currentMode = '1p'; // '1p' o '2p'
+        let currentCategory = 'General';
         let activePlayer = 1;
-        let p1Score = 0;
-        let p2Score = 0;
-
-        let p1UnlockedMilestones = new Set();
-        let p2UnlockedMilestones = new Set();
-        const MILESTONES = [20, 50, 100, 150, 200, 300];
-
+        let scoreP1 = 0;
+        let scoreP2 = 0;
+        
         let currentConsonant = '';
         let currentVowelsIndex = 0;
-        let timerValue = TIMER_MAX;
-        let timerInterval = null;
-        let gameActive = false;
+        
+        let isPlaying = false;
         let isPaused = false;
-
+        let timerValue = 20;
+        let timerInterval = null;
+        
         let longestWord = '';
         let usedWords = new Set();
+        let achievementsP1 = new Set();
+        let achievementsP2 = new Set();
 
         let recognition = null;
         let isListening = false;
 
+        async function requestMicPermissions() {
+            try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            } catch (err) {
+                console.warn("Permiso de micrófono denegado.", err);
+            }
+        }
+        window.addEventListener('load', requestMicPermissions);
+
         if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
             const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRec();
-            recognition.lang = 'es-ES';
-            recognition.continuous = true;
+            recognition.continuous = true; 
             recognition.interimResults = false;
+            recognition.lang = 'es-ES';
+
+            recognition.onstart = () => {
+                isListening = true;
+                document.getElementById('btn-mic').classList.add('listening');
+            };
 
             recognition.onresult = (event) => {
-                const transcript = event.results[event.results.length - 1][0].transcript.trim();
-                if (transcript) {
-                    document.getElementById('word-input').value = transcript;
-                    submitWord(transcript);
+                if(!isPlaying || isPaused) return;
+                const lastResult = event.results[event.results.length - 1];
+                if (lastResult.isFinal) {
+                    const word = lastResult[0].transcript.trim();
+                    document.getElementById('word-input').value = word;
+                    submitWord(word);
                 }
             };
 
-            recognition.onerror = (e) => {
-                console.log('Speech error:', e.error);
+            recognition.onerror = (event) => {
+                console.error("Error micro:", event.error);
+                document.getElementById('btn-mic').classList.remove('listening');
+                isListening = false;
+
+                if (event.error === 'network') {
+                    showToast("Sin internet: Usa el teclado para ingresar palabras.", false);
+                    return; // Evita el bucle de reintentos infinitos sin conexión
+                }
+
+                if(isPlaying && !isPaused && event.error !== 'not-allowed') {
+                    setTimeout(tryStartListening, 1000);
+                }
             };
 
             recognition.onend = () => {
+                document.getElementById('btn-mic').classList.remove('listening');
                 isListening = false;
-                updateMicBtnUI();
-                if (gameActive && !isPaused) {
+                if (isPlaying && !isPaused) {
                     tryStartListening();
                 }
             };
+        } else {
+            showToast("Reconocimiento de voz no soportado.", false);
         }
 
-        const lettersList = ['P','A','L','A','B','R','A'];
-        let letterIdx = 0;
+        function tryStartListening() {
+            if (recognition && !isListening && isPlaying && !isPaused) {
+                try { recognition.start(); } catch(e){}
+            }
+        }
+        function tryStopListening() {
+            if (recognition && isListening) {
+                try { recognition.stop(); } catch(e){}
+            }
+        }
+        function toggleMic() {
+            if (isListening) tryStopListening(); else tryStartListening();
+        }
+
+        // Lógica actualizada de animación del logotipo principal (Separación y Fusión)
         setInterval(() => {
-            const el = document.getElementById('boing-letter');
-            letterIdx = (letterIdx + 1) % lettersList.length;
-            el.textContent = lettersList[letterIdx];
-            el.classList.remove('animate-letter-spin');
-            void el.offsetWidth;
-            el.classList.add('animate-letter-spin');
-        }, 1800);
+            const logo = document.getElementById('logo-icon');
+            const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            
+            // Removemos y volvemos a aplicar la clase para reiniciar la animación CSS
+            logo.classList.remove('animating');
+            void logo.offsetWidth; // Truco mágico de CSS para forzar el reflujo 
+            
+            logo.textContent = randomLetter;
+            logo.classList.add('animating');
+        }, 3000);
 
         function setMode(mode) {
-            currentMode = mode;
-            const b1 = document.getElementById('mode-1p');
-            const b2 = document.getElementById('mode-2p');
-            const p2Box = document.getElementById('p2-box');
-
-            if (mode === '1p') {
-                b1.className = "px-2.5 py-1 rounded-lg font-bold bg-purple-600 text-white transition-all shadow";
-                b2.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
-                p2Box.classList.add('hidden');
-                activePlayer = 1;
-            } else {
-                b2.className = "px-2.5 py-1 rounded-lg font-bold bg-cyan-600 text-white transition-all shadow";
-                b1.className = "px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all";
-                p2Box.classList.remove('hidden');
+            if(isPlaying) {
+                showToast("Detén el juego para cambiar de modo", false);
+                return;
             }
-            updateTurnHighlight();
+            currentMode = mode;
+            document.getElementById('btn-1p').classList.toggle('active', mode === '1p');
+            document.getElementById('btn-2p').classList.toggle('active', mode === '2p');
+            document.getElementById('p2-card').style.opacity = mode === '2p' ? '1' : '0.5';
+            resetScores();
         }
 
-        function openCategoryModal() {
-            document.getElementById('cat-modal').classList.remove('hidden');
-        }
-
-        function closeCategoryModal() {
-            document.getElementById('cat-modal').classList.add('hidden');
-        }
-
+        function openCategoryModal() { if(!isPlaying) document.getElementById('modal-category').style.display = 'flex'; else showToast("Detén el juego primero", false); }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+        
         function selectCategory(cat) {
             currentCategory = cat;
-            document.getElementById('current-cat-badge').innerHTML = `Categoría: <strong class="text-purple-300">${cat}</strong>`;
-            closeCategoryModal();
-            showToast(`Categoría: ${cat}`);
+            const icon = CAT_ICONS[cat] || 'category';
+            document.getElementById('current-cat-display').innerHTML = `<span class="material-symbols-rounded">${icon}</span> Categoría: <strong style="color:var(--warning)">${cat}</strong>`;
+            closeModals();
+            showToast(`Categoría cambiada a ${cat}`, true);
         }
 
+        document.getElementById('spinner').addEventListener('click', () => {
+            if (!isPlaying) startSpinning();
+        });
+
         function startSpinning() {
-            if (gameActive && !isPaused) return;
-
-            const display = document.getElementById('consonant-display');
-            const label = document.getElementById('trompo-label');
+            isPlaying = true;
+            isPaused = false;
+            document.getElementById('spinner').classList.add('spinning');
             
-            let spins = 0;
-            const spinInterval = setInterval(() => {
-                display.textContent = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
-                spins++;
-                if (spins > 12) {
-                    clearInterval(spinInterval);
-                    currentConsonant = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
-                    display.textContent = currentConsonant;
-                    label.textContent = 'JUGANDO';
-                    
-                    currentVowelsIndex = 0;
-                    updateVowelsUI();
-                    
-                    gameActive = true;
-                    isPaused = false;
-                    resetTimer();
-                    updatePauseBtnUI();
-                    enableControls(true);
+            // Acompañado de la animación de explosión, se ocultan los textos.
+            
+            setTimeout(() => {
+                document.getElementById('spinner').classList.remove('spinning');
+                currentConsonant = CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+                document.getElementById('current-consonant').textContent = currentConsonant;
+                document.getElementById('spinner-status').textContent = 'Jugando';
+                
+                currentVowelsIndex = 0;
+                updateVowelsUI();
+                updateRuleDisplay();
+                resetTimer();
+                tryStartListening();
+            }, 800); // 800ms coincide exactamente con la duración de la explosión
+        }
 
-                    tryStartListening();
-                }
-            }, 60);
+        function updateVowelsUI() {
+            const vowelsDivs = document.getElementById('vowels-container').children;
+            for(let i=0; i<vowelsDivs.length; i++) {
+                vowelsDivs[i].className = 'vowel';
+                if(i < currentVowelsIndex) vowelsDivs[i].classList.add('completed');
+                else if(i === currentVowelsIndex) vowelsDivs[i].classList.add('active');
+            }
+            updateRuleDisplay();
+        }
+
+        function updateRuleDisplay() {
+            const v = VOWELS[currentVowelsIndex];
+            document.getElementById('rule-display').innerHTML = `Consonante <strong>${currentConsonant}</strong> + Vocal <strong>${v}</strong> <span class="rule-cat">(${currentCategory})</span>`;
         }
 
         function resetTimer() {
             clearInterval(timerInterval);
-            timerValue = TIMER_MAX;
+            timerValue = 20;
             updateTimerUI();
-
             timerInterval = setInterval(() => {
-                if (!isPaused && gameActive) {
+                if(!isPaused) {
                     timerValue--;
                     updateTimerUI();
-                    if (timerValue <= 0) {
-                        clearInterval(timerInterval);
-                        triggerGameOver();
-                    }
+                    if(timerValue <= 0) gameOver();
                 }
             }, 1000);
         }
 
         function updateTimerUI() {
-            document.getElementById('timer-text').textContent = `${timerValue}s`;
-            const pct = (timerValue / TIMER_MAX) * 100;
-            document.getElementById('timer-bar').style.width = `${pct}%`;
+            document.getElementById('time-display').textContent = timerValue + 's';
+            const pct = (timerValue / 20) * 100;
+            document.getElementById('time-bar').style.width = pct + '%';
         }
 
-        function updateVowelsUI() {
-            VOWELS.forEach((v, idx) => {
-                const el = document.getElementById(`vowel-${v}`);
-                if (idx < currentVowelsIndex) {
-                    el.className = "w-8 h-8 rounded-lg bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 font-extrabold flex items-center justify-center text-sm transition-all";
-                } else if (idx === currentVowelsIndex) {
-                    el.className = "w-8 h-8 rounded-lg bg-pink-600 text-white font-extrabold flex items-center justify-center text-sm shadow-md shadow-pink-600/40 animate-pulse border border-white/20 transition-all";
-                } else {
-                    el.className = "w-8 h-8 rounded-lg bg-slate-800 text-slate-500 font-extrabold flex items-center justify-center text-sm border border-slate-700/60 transition-all";
-                }
-            });
+        function togglePause() {
+            if(!isPlaying) return;
+            isPaused = !isPaused;
+            const btn = document.getElementById('btn-pause');
+            btn.classList.toggle('paused');
+            btn.innerHTML = isPaused ? '<span class="material-symbols-rounded">play_arrow</span>' : '<span class="material-symbols-rounded">pause</span>';
+            if(isPaused) tryStopListening(); else tryStartListening();
+        }
 
-            const currentVowel = VOWELS[currentVowelsIndex];
-            if (currentConsonant) {
-                document.getElementById('rule-instruction').innerHTML = 
-                    `Consonante <strong class="text-purple-400 text-sm">${currentConsonant}</strong> + Vocal <strong class="text-pink-400 text-sm">${currentVowel}</strong> (${currentCategory})`;
+        function stopGame() {
+            isPlaying = false;
+            isPaused = false;
+            clearInterval(timerInterval);
+            tryStopListening();
+            document.getElementById('current-consonant').textContent = '?';
+            document.getElementById('spinner-status').textContent = 'Tocar';
+            document.getElementById('time-bar').style.width = '100%';
+            document.getElementById('time-display').textContent = '20s';
+            document.getElementById('rule-display').textContent = 'Presiona el centro para iniciar';
+            const btn = document.getElementById('btn-pause');
+            btn.classList.remove('paused');
+            btn.innerHTML = '<span class="material-symbols-rounded">pause</span>';
+            currentVowelsIndex = 0;
+            resetScores();
+        }
+
+        function gameOver() {
+            clearInterval(timerInterval);
+            tryStopListening();
+            document.getElementById('modal-gameover').style.display = 'flex';
+        }
+
+        function retryGame() {
+            closeModals();
+            resetTimer();
+            tryStartListening();
+        }
+
+        function abandonGame() {
+            closeModals();
+            stopGame();
+        }
+
+        function resetScores() {
+            scoreP1 = 0; scoreP2 = 0;
+            activePlayer = 1;
+            document.getElementById('score-p1').textContent = '0';
+            document.getElementById('score-p2').textContent = '0';
+            updateTurnHighlight();
+            usedWords.clear();
+            document.getElementById('words-history').innerHTML = '<div class="empty-history">Las palabras aparecerán aquí...</div>';
+            longestWord = '';
+            document.getElementById('record-word').innerHTML = '<span class="material-symbols-rounded">emoji_events</span> ---';
+            achievementsP1.clear(); achievementsP2.clear();
+        }
+
+        function updateTurnHighlight() {
+            document.getElementById('p1-card').classList.toggle('active', activePlayer === 1);
+            if(currentMode === '2p') {
+                document.getElementById('p2-card').classList.toggle('active', activePlayer === 2);
             }
         }
 
-        function matchesConsonantVowelPair(word, c, v) {
-            word = word.toUpperCase();
-            c = c.toUpperCase();
-            v = v.toUpperCase();
-
-            if (!word.includes(c) || !word.includes(v)) return false;
-
-            const pairIndex = word.indexOf(c);
-            if (pairIndex !== -1 && pairIndex + 1 < word.length) {
-                const nextChar = word[pairIndex + 1];
-                if (['A','E','I','O','U'].includes(nextChar) && nextChar !== v) {
-                    return false; 
-                }
-            }
-            return true;
+        function normalizeWord(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
         }
 
-        function handleWordSubmit() {
+        function submitWordManual() {
             const input = document.getElementById('word-input');
-            const val = input.value.trim();
-            if (val) {
-                submitWord(val);
-                input.value = '';
-            }
+            if(input.value) { submitWord(input.value); input.value = ''; }
         }
 
-        async function submitWord(rawWord) {
-            if (!gameActive || isPaused) return;
+        function submitWord(rawWord) {
+            if(!isPlaying || isPaused) return;
 
-            const cleanWord = rawWord.toUpperCase().trim();
-            const currentVowel = VOWELS[currentVowelsIndex];
-
-            if (!cleanWord || cleanWord.includes(' ')) {
-                showToast('❌ Ingresa una sola palabra válida', false);
-                tryStartListening();
+            const word = rawWord.trim().toUpperCase();
+            if(!word || word.includes(' ')) {
+                showToast("Debe ser una sola palabra.", false);
                 return;
             }
 
-            if (!matchesConsonantVowelPair(cleanWord, currentConsonant, currentVowel)) {
-                showToast(`❌ Debe incluir ${currentConsonant} con la vocal ${currentVowel}`, false);
-                tryStartListening();
+            if(usedWords.has(word)) {
+                showToast(`"${word}" ya fue usada.`, false);
                 return;
             }
 
-            if (usedWords.has(cleanWord)) {
-                showToast('❌ Palabra ya utilizada', false);
-                tryStartListening();
+            const cleanWord = normalizeWord(word);
+            const reqConsonant = normalizeWord(currentConsonant);
+            const reqVowel = normalizeWord(VOWELS[currentVowelsIndex]);
+
+            let isValidStructure = false;
+            for (let i = 0; i < cleanWord.length - 1; i++) {
+                if (cleanWord[i] === reqConsonant && cleanWord[i+1] === reqVowel) {
+                    isValidStructure = true; break;
+                }
+            }
+
+            if (!isValidStructure) {
+                showToast(`Falta la secuencia "${currentConsonant}${VOWELS[currentVowelsIndex]}".`, false);
                 return;
             }
 
-            showToast('Validando...', true);
-            
-            try {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-                
-                const validationPrompt = `Valida de forma estricta si la palabra "${cleanWord}" pertenece legítimamente a la categoría "${currentCategory}". 
-                Responde ÚNICAMENTE con un objeto JSON estricto:
-                {"valid": true} o {"valid": false, "reason": "explicación breve"}.`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: validationPrompt }] }],
-                    generationConfig: { responseMimeType: "application/json" }
-                };
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                const textResp = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (textResp) {
-                    const parsed = JSON.parse(textResp);
-                    if (!parsed.valid) {
-                        showToast(`❌ ${parsed.reason || 'No pertenece a la categoría'}`, false);
-                        tryStartListening();
+            if (currentCategory !== "General") {
+                const dictList = OFFLINE_DICTIONARY[currentCategory];
+                if (dictList) {
+                    if (!dictList.includes(cleanWord)) {
+                        showToast(`"${word}" no está en la categoría ${currentCategory}.`, false);
                         return;
                     }
                 }
-            } catch (err) {
-                console.error("Validation error:", err);
             }
 
-            usedWords.add(cleanWord);
-            addWordToHistory(cleanWord);
-
+            usedWords.add(word);
             const points = cleanWord.length;
-            let currentTotalScore = 0;
-            let activeMilestones = null;
-            let playerName = '';
-
-            if (activePlayer === 1) {
-                p1Score += points;
-                document.getElementById('p1-score').textContent = p1Score;
-                currentTotalScore = p1Score;
-                activeMilestones = p1UnlockedMilestones;
-                playerName = document.getElementById('p1-name').value || 'Jugador 1';
-            } else {
-                p2Score += points;
-                document.getElementById('p2-score').textContent = p2Score;
-                currentTotalScore = p2Score;
-                activeMilestones = p2UnlockedMilestones;
-                playerName = document.getElementById('p2-name').value || 'Jugador 2';
+            
+            if(activePlayer === 1) { 
+                scoreP1 += points; 
+                document.getElementById('score-p1').textContent = scoreP1;
+                checkScoreAchievements(scoreP1, achievementsP1, 1);
+            } else { 
+                scoreP2 += points; 
+                document.getElementById('score-p2').textContent = scoreP2;
+                checkScoreAchievements(scoreP2, achievementsP2, 2);
             }
 
-            checkScoreAchievements(currentTotalScore, activeMilestones, playerName);
+            addWordToHistory(word, points);
 
             if (cleanWord.length > longestWord.length) {
                 longestWord = cleanWord;
-                document.getElementById('record-word').textContent = `${longestWord} (${longestWord.length})`;
+                document.getElementById('record-word').innerHTML = `<span class="material-symbols-rounded">emoji_events</span> ${word} (${points})`;
             }
 
             showToast(`¡Correcto! +${points} pts`, true);
+            document.getElementById('word-input').value = '';
 
+            if (currentMode === '2p') {
+                if (activePlayer === 1) {
+                    activePlayer = 2;
+                    updateTurnHighlight();
+                    showToast('¡Turno del Jugador 2!', true);
+                    resetTimer();
+                    tryStartListening();
+                } else {
+                    activePlayer = 1;
+                    updateTurnHighlight();
+                    advanceVowel();
+                }
+            } else {
+                advanceVowel();
+            }
+        }
+
+        function advanceVowel() {
             currentVowelsIndex++;
             if (currentVowelsIndex >= VOWELS.length) {
                 currentVowelsIndex = 0;
-                if (currentMode === '2p') {
-                    activePlayer = activePlayer === 1 ? 2 : 1;
-                    updateTurnHighlight();
-                }
-                showToast('🎉 ¡Rueda completada! Nueva consonante', true);
+                showToast('🎉 ¡Rueda completada!', true);
                 startSpinning();
             } else {
                 updateVowelsUI();
@@ -648,235 +1103,74 @@
         }
 
         function checkScoreAchievements(score, unlockedSet, player) {
-            for (let milestone of MILESTONES) {
-                if (score >= milestone && !unlockedSet.has(milestone)) {
-                    unlockedSet.add(milestone);
-                    triggerTrophyAchievement(player, milestone);
-                    break;
+            const milestones = [20, 50, 100, 150, 200, 300];
+            for(let m of milestones) {
+                if(score >= m && !unlockedSet.has(m)) {
+                    unlockedSet.add(m);
+                    triggerTrophyAnimation(m);
                 }
             }
         }
 
-        function triggerTrophyAchievement(player, points) {
-            const toast = document.createElement('div');
-            toast.className = "fixed top-1/4 left-1/2 achievement-toast bg-slate-900/95 border border-amber-400/60 px-4 py-2.5 rounded-2xl shadow-2xl shadow-amber-500/20 flex items-center gap-3 z-50 pointer-events-none";
-            toast.innerHTML = `
-                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-lg shrink-0">🏆</div>
-                <div class="flex flex-col text-left">
-                    <span class="text-[10px] uppercase tracking-wider text-amber-300 font-extrabold">¡Logro Desbloqueado!</span>
-                    <span class="text-xs font-bold text-white">${player} alcanzó los <strong class="text-amber-400">${points} Puntos</strong></span>
-                </div>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 2800);
+        function triggerTrophyAnimation(points) {
+            const box = document.getElementById('achievement-box');
+            document.getElementById('ach-pts').textContent = points;
+            box.style.display = 'flex';
+            box.style.animation = 'none';
+            void box.offsetWidth;
+            box.style.animation = 'trophy-float 2.8s ease-in-out forwards';
+            setTimeout(() => { box.style.display = 'none'; }, 2900);
         }
 
-        function addWordToHistory(word) {
-            const container = document.getElementById('words-list');
-            if (usedWords.size === 1) {
-                container.innerHTML = '';
-            }
-            const tag = document.createElement('span');
-            tag.className = "bg-purple-900/40 border border-purple-500/40 text-purple-200 text-xs px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 animate-bounce";
-            tag.innerHTML = `${word} <small class="text-purple-400 text-[9px]">(${word.length})</small>`;
-            container.prepend(tag);
+        function addWordToHistory(word, pts) {
+            const container = document.getElementById('words-history');
+            if(usedWords.size === 1) container.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'word-tag';
+            div.innerHTML = `${word} <span>(${pts})</span>`;
+            container.prepend(div);
         }
 
-        async function triggerPistaModal() {
-            if (!gameActive) {
-                showToast('Gira la consonante primero.');
-                return;
-            }
-
+        function requestHint() {
+            if(!isPlaying) return;
             isPaused = true;
-            stopListening();
-
-            const c = currentConsonant;
-            const v = VOWELS[currentVowelsIndex];
-            const cat = currentCategory;
-
-            const modalText = document.getElementById('pista-modal-text');
-            modalText.textContent = `Consultando pista temática para ${c} + ${v} (${cat})...`;
-
-            document.getElementById('pista-modal').classList.remove('hidden');
-
-            try {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-                
-                const prompt = `Proporciona una pista precisa y descriptiva para una palabra de la categoría "${cat}" que contenga obligatoriamente la consonante "${c}" y la vocal "${v}". Máximo 2 oraciones breves en español.`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    tools: [{ "google_search": {} }]
-                };
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    modalText.textContent = candidate.content.parts[0].text;
-                } else {
-                    modalText.textContent = `Busca un elemento de la categoría ${cat} que combine la letra ${c} con la vocal ${v}.`;
+            tryStopListening();
+            
+            const reqConsonant = normalizeWord(currentConsonant);
+            const reqVowel = normalizeWord(VOWELS[currentVowelsIndex]);
+            
+            let hintString = `Piensa en una palabra que contenga la sílaba "${reqConsonant.toUpperCase()}${reqVowel.toUpperCase()}".`;
+            
+            if (currentCategory !== "General") {
+                const dictList = OFFLINE_DICTIONARY[currentCategory];
+                if (dictList) {
+                    const match = dictList.find(w => w.includes(reqConsonant + reqVowel));
+                    if (match) {
+                        hintString = `Ejemplo de ${currentCategory}: Empieza o contiene "${reqConsonant.toUpperCase()}${reqVowel.toUpperCase()}"... como "${match.substring(0, 3)}..."`;
+                    } else {
+                        hintString = `No hay un ejemplo fácil en el diccionario local para ${currentCategory} con "${reqConsonant.toUpperCase()}${reqVowel.toUpperCase()}". ¡Intenta cambiar la sílaba!`;
+                    }
                 }
-            } catch (err) {
-                modalText.textContent = `Busca un elemento de la categoría ${cat} que combine la letra ${c} con la vocal ${v}.`;
             }
+
+            document.getElementById('hint-text-display').textContent = hintString;
+            document.getElementById('modal-hint').style.display = 'flex';
         }
 
-        function closePistaModal() {
-            document.getElementById('pista-modal').classList.add('hidden');
-            if (gameActive) {
-                isPaused = false;
-                tryStartListening();
-            }
+        function closeHintModal() {
+            document.getElementById('modal-hint').style.display = 'none';
+            isPaused = false;
+            tryStartListening();
         }
 
-        function togglePauseGame() {
-            if (!gameActive) return;
-            isPaused = !isPaused;
-            updatePauseBtnUI();
-            if (isPaused) {
-                stopListening();
-                showToast('Juego Pausado', false);
-            } else {
-                tryStartListening();
-                showToast('Juego Reanudado', true);
-            }
+        function showToast(msg, isSuccess) {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `toast ${isSuccess ? 'success' : 'error'}`;
+            t.textContent = msg;
+            container.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
         }
-
-        function updatePauseBtnUI() {
-            const btn = document.getElementById('btn-pause');
-            if (isPaused) {
-                btn.innerHTML = '<i class="fa-solid fa-play text-sm"></i>';
-                btn.className = "w-10 h-10 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 flex items-center justify-center transition-all active:scale-95 shadow";
-            } else {
-                btn.innerHTML = '<i class="fa-solid fa-pause text-sm"></i>';
-                btn.className = "w-10 h-10 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/50 text-blue-300 flex items-center justify-center transition-all active:scale-95 shadow";
-            }
-        }
-
-        function stopGameManual() {
-            gameActive = false;
-            clearInterval(timerInterval);
-            stopListening();
-            triggerGameOver();
-        }
-
-        function triggerGameOver() {
-            gameActive = false;
-            clearInterval(timerInterval);
-            stopListening();
-            document.getElementById('gameover-desc').textContent = `Puntuación final: Jugador 1 (${p1Score} pts)${currentMode === '2p' ? ` | Jugador 2 (${p2Score} pts)` : ''}`;
-            document.getElementById('gameover-modal').classList.remove('hidden');
-        }
-
-        function retryGame() {
-            document.getElementById('gameover-modal').classList.add('hidden');
-            p1Score = 0;
-            p2Score = 0;
-            document.getElementById('p1-score').textContent = '0';
-            document.getElementById('p2-score').textContent = '0';
-            p1UnlockedMilestones.clear();
-            p2UnlockedMilestones.clear();
-            usedWords.clear();
-            document.getElementById('words-list').innerHTML = '<span class="text-slate-600 text-[11px] italic">Las palabras dichas aparecerán aquí...</span>';
-            document.getElementById('record-word').textContent = '---';
-            startSpinning();
-        }
-
-        function abandonGame() {
-            document.getElementById('gameover-modal').classList.add('hidden');
-            gameActive = false;
-            currentConsonant = '';
-            document.getElementById('consonant-display').textContent = '?';
-            document.getElementById('trompo-label').textContent = 'Girar';
-            document.getElementById('rule-instruction').textContent = 'Presiona el botón central para girar la consonante.';
-        }
-
-        function toggleSpeech() {
-            if (!recognition) {
-                showToast('Reconocimiento de voz no soportado.');
-                return;
-            }
-            if (isListening) {
-                stopListening();
-            } else {
-                tryStartListening();
-            }
-        }
-
-        function tryStartListening() {
-            if (!recognition || isListening || !gameActive || isPaused) return;
-            try {
-                isListening = true;
-                recognition.start();
-                updateMicBtnUI();
-            } catch (e) {
-                isListening = false;
-                updateMicBtnUI();
-            }
-        }
-
-        function stopListening() {
-            if (!recognition || !isListening) return;
-            try {
-                recognition.stop();
-            } catch (e) {}
-            isListening = false;
-            updateMicBtnUI();
-        }
-
-        function updateMicBtnUI() {
-            const btn = document.getElementById('mic-btn');
-            const icon = document.getElementById('mic-icon');
-            if (isListening) {
-                btn.className = "w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-lg shadow-emerald-600/30 hover:bg-emerald-500 active:scale-95 transition-all relative shrink-0 animate-pulse";
-                icon.className = "fa-solid fa-microphone";
-            } else {
-                btn.className = "w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg shadow-lg shadow-rose-600/30 hover:bg-rose-500 active:scale-95 transition-all relative shrink-0";
-                icon.className = "fa-solid fa-microphone-slash";
-            }
-        }
-
-        function updateTurnHighlight() {
-            const p1Box = document.getElementById('p1-box');
-            const p2Box = document.getElementById('p2-box');
-            if (activePlayer === 1) {
-                p1Box.className = "flex-1 bg-purple-950/40 border-2 border-purple-500/80 rounded-xl p-2 transition-all";
-                p2Box.className = "flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50";
-            } else {
-                p2Box.className = "flex-1 bg-cyan-950/40 border-2 border-cyan-500/80 rounded-xl p-2 transition-all";
-                p1Box.className = "flex-1 bg-slate-950/30 border border-slate-800 rounded-xl p-2 transition-all opacity-50";
-            }
-        }
-
-        function enableControls(enable) {
-            document.getElementById('word-input').disabled = !enable;
-        }
-
-        function showToast(msg, isSuccess = false) {
-            const toast = document.createElement('div');
-            toast.className = `fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl text-xs font-bold text-white z-50 shadow-2xl transition-all duration-300 border ${
-                isSuccess 
-                    ? 'bg-emerald-600/90 border-emerald-400 shadow-emerald-600/30' 
-                    : 'bg-rose-600/90 border-rose-400 shadow-rose-600/30'
-            }`;
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 2000);
-        }
-
-        document.getElementById('word-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleWordSubmit();
-        });
     </script>
 </body>
 </html>
