@@ -1,0 +1,36 @@
+name: Palabras Rapidas
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar mi codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-level: 18
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Instalar Cordova y compilar
+        run: |
+          npm install -g cordova
+          cordova create mi-app com.ejemplo.miapp "Mi App HTML"
+          rm -rf mi-app/www/*
+          cp index.html mi-app/www/
+          cd mi-app
+          cordova platform add android
+          cordova build android --copy-to=../mi-app.apk
+
+      - name: Guardar APK resultante
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-Instalable-APK
+          path: mi-app.apk
