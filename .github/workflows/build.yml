@@ -22,7 +22,7 @@ jobs:
       - name: Instalar Cordova y compilar
         run: |
           npm install -g cordova
-          cordova create mi-app com.ejemplo.miapp "Mi App HTML"
+          cordova create mi-app com.ejemplo.miapp "Palabras Rapidas"
           rm -rf mi-app/www/*
           cp index.html mi-app/www/
           cd mi-app
