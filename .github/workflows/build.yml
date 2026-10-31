@@ -17,11 +17,10 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '21'
 
       - name: Inicializar Capacitor
         run: |
-          # Nos aseguramos por completo de que exista la carpeta www antes de configurar Capacitor
           mkdir -p www
           if [ -f "index.html" ]; then
             cp index.html www/
