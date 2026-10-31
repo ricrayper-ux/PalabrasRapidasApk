@@ -27,10 +27,10 @@ jobs:
           cp index.html mi-app/www/
           cd mi-app
           cordova platform add android
-          cordova build android --release
+          cordova build android
 
       - name: Guardar APK resultante
         uses: actions/upload-artifact@v4
         with:
           name: App-Instalable-APK
-          path: mi-app/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: mi-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
