@@ -14,13 +14,19 @@ jobs:
           node-version: '22'
 
       - name: Configurar Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Inicializar Capacitor
         run: |
+          # Nos aseguramos por completo de que exista la carpeta www antes de configurar Capacitor
+          mkdir -p www
+          if [ -f "index.html" ]; then
+            cp index.html www/
+          fi
+          
           npm init -y
           npm install @capacitor/core @capacitor/cli
           npx cap init "Palabras Rapidas" com.ricardo.palabrasrapidas --web-dir=www
@@ -39,7 +45,6 @@ jobs:
           npx cap sync android
           cd android
           ./gradlew assembleDebug
-          # Buscamos el archivo en cualquier subcarpeta de build para asegurar que lo encuentre
           find . -name "*.apk" -exec cp {} ../PalabrasRapidas.apk \;
 
       - name: Guardar APK Resultante
