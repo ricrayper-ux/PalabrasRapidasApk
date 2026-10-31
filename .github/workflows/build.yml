@@ -11,32 +11,39 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '11'
 
-      - name: Instalar Cordova y compilar
+      - name: Instalar Cordova y dependencias
         run: |
           npm install -g cordova
           cordova create mi-app com.ricrayper.palabrasrapidas "Palabras Rapidas"
           rm -rf mi-app/www/*
           cp index.html mi-app/www/
           
+          # Inyectar Icono si existe
           if [ -f "icon.png" ]; then
             cp icon.png mi-app/www/icon.png
             sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' mi-app/config.xml
           fi
           
-          # Configuración del Micrófono
+          # Inyectar Configuración del Micrófono en config.xml
           sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">\n        <uses-permission android:name="android.permission.RECORD_AUDIO" />\n        <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    </config-file>' mi-app/config.xml
-          
+
+      - name: Añadir Plataforma e Instalar Plugins
+        run: |
           cd mi-app
           cordova platform add android
           cordova plugin add cordova-plugin-android-permissions
+
+      - name: Compilar APK
+        run: |
+          cd mi-app
           cordova build android
 
       - name: Guardar APK resultante
