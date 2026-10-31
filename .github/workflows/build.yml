@@ -1,11 +1,11 @@
-name: Build APK limpia
+name: Build APK con Capacitor
 on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Descargar mi codigo
+      - name: Descargar codigo
         uses: actions/checkout@v4
 
       - name: Configurar Node.js
@@ -17,37 +17,36 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
 
-      - name: Instalar Cordova y dependencias
+      - name: Inicializar Capacitor
         run: |
-          npm install -g cordova
-          cordova create mi-app com.ricrayper.palabrasrapidas "Palabras Rapidas"
-          rm -rf mi-app/www/*
-          cp index.html mi-app/www/
+          npm init -y
+          npm install @capacitor/core @capacitor/cli
+          npx cap init "Palabras Rapidas" com.ricardo.palabrasrapidas --web-dir=www
+          npm install @capacitor/android
+          npx cap add android
+
+      - name: Configurar Permisos de Microfono e Icono
+        run: |
+          # Inyectar permisos del micrófono en el AndroidManifest nativo
+          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+          sed -i '/<manifest/a \    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />' $MANIFEST_PATH
           
-          # Inyectar Icono si existe
-          if [ -f "icon.png" ]; then
-            cp icon.png mi-app/www/icon.png
-            sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' mi-app/config.xml
+          # Vincular icono si existe en la carpeta www
+          if [ -f "www/icon.png" ]; then
+            sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' capacitor.config.json || true
           fi
-          
-          # Inyectar Configuración del Micrófono en config.xml
-          sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">\n        <uses-permission android:name="android.permission.RECORD_AUDIO" />\n        <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    </config-file>' mi-app/config.xml
 
-      - name: Añadir Plataforma e Instalar Plugins
+      - name: Compilar APK Final
         run: |
-          cd mi-app
-          cordova platform add android
-          cordova plugin add cordova-plugin-android-permissions
+          npx cap sync android
+          cd android
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../PalabrasRapidas.apk
 
-      - name: Compilar APK
-        run: |
-          cd mi-app
-          cordova build android
-
-      - name: Guardar APK resultante
+      - name: Guardar APK Resultante
         uses: actions/upload-artifact@v4
         with:
           name: Palabras-Rapidas-APK
-          path: mi-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: PalabrasRapidas.apk
