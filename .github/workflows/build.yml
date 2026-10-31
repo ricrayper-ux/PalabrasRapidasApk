@@ -11,7 +11,7 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Configurar Java
         uses: actions/setup-java@v4
@@ -31,20 +31,12 @@ jobs:
             sed -i '/<\/widget>/i \    <icon src="www/icon.png" \/>' mi-app/config.xml
           fi
           
-          # --- NUEVO: Configuración del Micrófono ---
-          # Añade las líneas de permisos directamente en el archivo de configuración de Cordova
+          # Configuración del Micrófono
           sed -i '/<\/widget>/i \    <config-file target="AndroidManifest.xml" parent="/*">\n        <uses-permission android:name="android.permission.RECORD_AUDIO" />\n        <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n    </config-file>' mi-app/config.xml
           
           cd mi-app
           cordova platform add android
-          
-          # Instala el plugin oficial para gestionar los permisos desde la app
           cordova plugin add cordova-plugin-android-permissions
-          cd ..
-          # ------------------------------------------
-
-          cd mi-app
-          cordova platform add android
           cordova build android
 
       - name: Guardar APK resultante
